@@ -131,7 +131,7 @@
 <script>
 const API_KEY="$2a$10$AjB/6eAdtHZacaYerVO6sue8ngeExwoF59lWnqCyTzKkjnnLRagnO";
 const BIN_NAME="cronograma-campo-jobs-v2";
-let BIN_ID=localStorage.getItem("jsonbin_id_v2")||null;
+let BIN_ID="6a2ab0fcda38895dfead67f0";
 
 const DIAS=[
   {key:"vie1",label:"Vie 12/6",full:"Viernes 12 de junio",finde:true},
@@ -197,31 +197,15 @@ function getDia(k){return DIAS.find(d=>d.key===k);}
 // JSONBin
 async function loadData(){
   try{
-    if(!BIN_ID){await createBin();}
-    else{
-      const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{"X-Master-Key":API_KEY}});
-      if(!res.ok){await createBin();return;}
+    const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{"X-Master-Key":API_KEY}});
+    if(res.ok){
       const data=await res.json();
       applyData(data.record);
     }
   }catch(e){}
   render();
 }
-async function createBin(){
-  try{
-    const res=await fetch("https://api.jsonbin.io/v3/b",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","X-Master-Key":API_KEY,"X-Bin-Name":BIN_NAME,"X-Bin-Private":"false"},
-      body:JSON.stringify({hechasPorDia})
-    });
-    const data=await res.json();
-    BIN_ID=data.metadata.id;
-    localStorage.setItem("jsonbin_id_v2",BIN_ID);
-  }catch(e){}
-  render();
-}
 async function saveData(){
-  if(!BIN_ID)await createBin();
   const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{
     method:"PUT",
     headers:{"Content-Type":"application/json","X-Master-Key":API_KEY},
